@@ -44,10 +44,11 @@ export const getDataFav = async (): Promise<IResponseRooms> => {
   return res.data;
 };
 
-export const useGetFav= (): UseQueryResult<IResponseRooms> => {
+export const useGetFav= (enable?:boolean): UseQueryResult<IResponseRooms> => {
   return useQuery<IResponseRooms>({
     queryKey: ["favRooms"],
-    queryFn: () => getDataFav(),
+    queryFn:  getDataFav,
+    enabled:enable,
     staleTime: 5 * 60 * 1000,
     //Old data stays while new page loads → no white flash
     placeholderData: keepPreviousData,

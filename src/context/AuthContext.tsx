@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { jwtDecode } from "jwt-decode";
 import { axiosPrivateInstance } from "../services/api/apiInstance";
 import { Auth } from "../services/api/apiConfig";
@@ -8,13 +8,19 @@ interface IAuth {
   profileImage: string;
   _id: string;
   email: string;
+  role:string
+  verified:boolean,
+  phoneNumber:number
+  country:string
+  createdAt:string
 }
 
 interface IAuthData {
   fillData: IAuth | null;
   isAuthenticated: boolean;
   getImageNameUser: () => Promise<void>;
-  logout: () => void;        // Add logout function
+  logout: () => void;     
+  isUser:boolean
 }
 
 const AuthContext = createContext<IAuthData | null>(null);
@@ -24,23 +30,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
 
   // This will be true only if we have a valid token AND user data loaded
-  const isAuthenticated = !!fillData ;
+  const isAuthenticated = !!fillData && !!token;
+  const isUser = fillData?.role === "user";
 
   // Sync with localStorage changes (e.g., from another tab)
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "token") {
-        setToken(e.newValue);
-      }
-    };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
-  const getImageNameUser = async () => {
+  const getImageNameUser = useCallback(async () => {
     const currentToken = localStorage.getItem("token");
-
+setToken(currentToken)
     if (!currentToken) {
       setFillData(null);
       setToken(null);
@@ -53,17 +50,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setFillData(res.data.data.user);
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
-      // If profile fetch fails (e.g. token invalid), consider user not authenticated
       setFillData(null);
-      // Optionally: localStorage.removeItem("token"); setToken(null);
     }
-  };
+  },[]);
 
   // Re-fetch profile when token changes
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getImageNameUser();
-  }, [token]);
+  }, [token,getImageNameUser]);
 
   // Login function (call this after successful login)
 
@@ -81,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated,
         getImageNameUser,
         logout,
-        
+        isUser
       }}
     >
       {children}

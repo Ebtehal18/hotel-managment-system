@@ -29,6 +29,7 @@ import { UseFavorite } from "../../context/FavaContext";
 import { useState } from "react";
 // import { Badge } from 'rsuite';
 import MenuIcon from "@mui/icons-material/Menu";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function UserLayout() {
   const { fillData,logout } = UseAuth();
@@ -37,8 +38,7 @@ export default function UserLayout() {
   const { mode, toggleMode } = useMode();
   const token = localStorage.getItem("token");
   // const {}=UseAuth()
-  const { favRooms } = UseFavorite();
-  console.log(favRooms.length);
+  const { totalFav } = UseFavorite();
   const navStyle = ({ isActive }: { isActive: boolean }) => ({
     textDecoration: "none",
     color: isActive ? theme.palette.primary.main : "#152C5B",
@@ -57,8 +57,10 @@ export default function UserLayout() {
 
   const navigate = useNavigate();
   // const {}=UseAuth()
+  const queryClient=useQueryClient()
   const handelLogOut = () => {
     navigate("/");
+    queryClient.clear()
 logout()
   };
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -111,7 +113,7 @@ logout()
                   {token && (
                     <Badge
                       showZero
-                      badgeContent={favRooms?.length || 0}
+                      badgeContent={totalFav}
                       color="error"
                     >
                       <NavLink to="/fav" style={navStyle}>
@@ -130,7 +132,7 @@ logout()
                     {mode === "light" ? (
                       <DarkModeIcon sx={{ color: "rgba(0, 0, 0, 0.54)" }} />
                     ) : (
-                      <LightModeIcon sx={{ color: "#d5b740" }} />
+                      <LightModeIcon sx={{ color: "rgb(250, 175, 0)" }} />
                     )}
                   </IconButton>
 
@@ -297,7 +299,7 @@ sx={{"&.active": {
       }
   }}
                   >
-                    <Badge badgeContent={favRooms?.length || 0} color="error">
+                    <Badge badgeContent={totalFav} color="error">
                       <ListItemText
                         primary={t("user.favorites")}
                     sx={{      textAlign:i18n.language==='ar'?"justify":"start"
@@ -388,7 +390,10 @@ sx={{"&.active": {
             transformOrigin={{ vertical: "top", horizontal: "right" }}
             slotProps={{ paper: { style: { marginTop: 8 } } }}
           >
-            <MenuItem onClick={handleClose}>{t("user.myProfile")}</MenuItem>
+            <MenuItem onClick={()=>{
+              handleClose()
+              navigate("/profile")
+            }}>{t("user.myProfile")}</MenuItem>
             <MenuItem
               onClick={() => {
                 handleClose();

@@ -116,9 +116,8 @@ export default function AuthLayout() {
           <Button
             to={isLoginPage ? "/auth/register" : "/auth/login"}
             sx={{
-              color: isLoginPage
-                ? theme.palette.primary.dark
-                : theme.palette.error.main,
+              color: theme.palette.primary.main 
+               
             }}
             component={Link}
           >

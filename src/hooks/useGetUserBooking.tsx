@@ -34,11 +34,12 @@ export const getDataMyBooking = async (page: number): Promise<IResponse> => {
   return res.data;
 };
 
-export const useGetMyBooking = (page: number): UseQueryResult<IResponse> => {
+export const useGetMyBooking = (page: number,enable:boolean): UseQueryResult<IResponse> => {
   return useQuery<IResponse>({
     queryKey: ["myBooking", page],
     queryFn: () => getDataMyBooking(page),
     staleTime: 5 * 60 * 1000,
+    enabled:enable,
     //Old data stays while new page loads → no white flash
     placeholderData: keepPreviousData,
   });

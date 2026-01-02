@@ -230,7 +230,20 @@
     "Wifi": "Wi-Fi",
     "UnitsReady": "Ready Units",
     "Refrigerators": "Refrigerators",
-    "Televisions": "Televisions"
+    "Televisions": "Televisions",
+    "myFavRooms":"My Favorites Rooms",
+        "noFavoriteRooms": "No Favorite Rooms",
+            "goHome": "Explore rooms and add some to your favorites!",
+            "noLogC":"You are not logged in. Please log in to view comments.",
+           "updateComment" :"Update Comment",
+          "updating" :"updating...",
+          "roleUser":"User",
+          "phone": "Phone Number",
+"joined": "Joined",
+"notVerified": "Not Verified"
+
+
+
 
 }
 }

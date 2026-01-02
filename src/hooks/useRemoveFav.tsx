@@ -94,7 +94,7 @@ export const useDeleteFavRoom = (): UseMutationResult<  IResponse,
   return { previousData }; // for rollback on error
 },
 
-    onError: (err, _, context) => {
+    onError: (_err, _, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(["favRooms"], context.previousData);
       }

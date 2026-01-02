@@ -38,12 +38,12 @@ export const getDataRoom = async(id:string|null): Promise<IResponse> => {
   return res.data;
 };
 
-export const useGetComments= (id:string|null): UseQueryResult<IResponse> => {
+export const useGetComments= (id:string|null,enabel:boolean): UseQueryResult<IResponse> => {
   console.log(id)
   return useQuery<IResponse>({
     queryKey: ['roomComments',id],
     queryFn: () => getDataRoom(id),
-    enabled:!!id,
+    enabled:!!id&&enabel,
     staleTime: 5 * 60 * 1000,
 
 

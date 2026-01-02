@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Rating,
   Divider,
+  Skeleton,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -34,45 +35,53 @@ import wifiimg from "../../../assets/ic_wifi.png";
 import unitsimg from "../../../assets/ic_ac.png";
 import refimg from "../../../assets/ic_kulkas.png";
 import tvimg from "../../../assets/ic_tv.png";
-import StarIcon from '@mui/icons-material/Star';
+import StarIcon from "@mui/icons-material/Star";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { useCreateReview, type IReviewCreate } from "../../../hooks/useCreateReview";
-import { useCreateComment, type ICommentCreate } from "../../../hooks/useCreateComment";
+import {
+  useCreateReview,
+  type IReviewCreate,
+} from "../../../hooks/useCreateReview";
+import {
+  useCreateComment,
+  type ICommentCreate,
+} from "../../../hooks/useCreateComment";
 import { useQueryClient } from "@tanstack/react-query";
-import Tab from '@mui/material/Tab';
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
-import CreateIcon from '@mui/icons-material/Create';
-import commentImg from '../../../assets/add-comment.svg'
-import review from '../../../assets/add-review.svg'
+import Tab from "@mui/material/Tab";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import CreateIcon from "@mui/icons-material/Create";
+import commentImg from "../../../assets/add-comment.svg";
+import review from "../../../assets/add-review.svg";
 import { useGetReviews } from "../../../hooks/useGetReviews";
 import { useGetComments } from "../../../hooks/useGetComments";
 import { UseAuth } from "../../../context/AuthContext";
-import empty from '../../../assets/empty-1-Cp9p7e3t.svg'
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import empty from "../../../assets/empty-1-Cp9p7e3t.svg";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { useDeleteComment } from "../../../hooks/useDeleteComment";
 import { useUpdateComment } from "../../../hooks/useUpdateComment";
 import type { AxiosError } from "axios";
 
- const labels: { [index: string]: string } = {
-  1: '1.0',
-  2: '2.0',
-  3: '3.0',
-  4: '4.0',
-  5: '5.0',
+const labels: { [index: string]: string } = {
+  1: "1.0",
+  2: "2.0",
+  3: "3.0",
+  4: "4.0",
+  5: "5.0",
 };
 function getLabelText(value: number) {
-  return `${value} Star${value !== 1 ? 's' : ''}, ${labels[value]}`;
+  return `${value} Star${value !== 1 ? "s" : ""}, ${labels[value]}`;
 }
 
 export default function RoomDetails() {
-    const [tabVal, setTabVal] =useState('1');
-const {isAuthenticated,fillData}=UseAuth()
-console.log(isAuthenticated,fillData)
-// console.log(isAuthenticated)
+  const [tabVal, setTabVal] = useState("1");
+  const { isAuthenticated, isUser,fillData } = UseAuth();
+  console.log(isAuthenticated, isUser);
+  const enable = !!isAuthenticated && !!isUser;
+console.log(enable)
+  // console.log(isAuthenticated)
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
     setTabVal(newValue);
   };
@@ -85,12 +94,11 @@ console.log(isAuthenticated,fillData)
   const { data } = useGetRoomDetails(id ?? "");
   const room = data?.data.room;
 
-
-const {
+  const {
     register: registerRate,
     handleSubmit: handleSubmitRate,
 
-    formState: { errors: errorsRate }, 
+    formState: { errors: errorsRate },
   } = useForm<IReviewCreate>();
 
   // Second form: Add Comment
@@ -98,122 +106,127 @@ const {
     register: registerComment,
     handleSubmit: handleSubmitComment,
     formState: { errors: errorsComment },
-    setValue:setComment
+    setValue: setComment,
   } = useForm<ICommentCreate>();
 
-const {mutate:createReview,isPending:isReview}=useCreateReview()
-const {mutate:createComment,isPending:isCommenting}=useCreateComment()
-const {mutate:deleteComment,isPending:isDeletingComment}=useDeleteComment()
-const {mutate:updateComment,isPending:isUpdatingComment}=useUpdateComment()
+  const { mutate: createReview, isPending: isReview } = useCreateReview();
+  const { mutate: createComment, isPending: isCommenting } = useCreateComment();
+  const { mutate: deleteComment, isPending: isDeletingComment } =
+    useDeleteComment();
+  const { mutate: updateComment, isPending: isUpdatingComment } =
+    useUpdateComment();
 
-const querClient=useQueryClient()
+  const querClient = useQueryClient();
   const onSubmitRate: SubmitHandler<IReviewCreate> = async (data) => {
-   
-    if(id){
-       
-      const payload={
-      ...data,
-      rating:value,
-      roomId:id
-    }
-    createReview(payload,{
-      onSuccess:(res)=>{
-        toast.success(res.message)
-querClient.invalidateQueries({
-  queryKey:['roomReviews']
-})
-      },
-       onError:(err)=>{
-  toast.error(err?.response?.data?.message || 'Something went wrong');
-
-      }
-    })
+    if (id) {
+      const payload = {
+        ...data,
+        rating: value,
+        roomId: id,
+      };
+      createReview(payload, {
+        onSuccess: (res) => {
+          toast.success(res.message);
+          querClient.invalidateQueries({
+            queryKey: ["roomReviews"],
+          });
+        },
+        onError: (err) => {
+          toast.error(err?.response?.data?.message || "Something went wrong");
+        },
+      });
     }
   };
 
   // Submit handler for comment
   const onSubmitComment: SubmitHandler<ICommentCreate> = async (data) => {
-if(id&&!selectedComment){
-          const payload={
-      ...data,
-      roomId:id
-    }
-console.log(payload) 
-   createComment(payload,{
-      onSuccess:(res)=>{
-        toast.success(res.message)
-querClient.invalidateQueries({
-  queryKey:['roomComments']
-})
-setComment("comment",'')
-      },
-       onError:(err)=>{
-  toast.error(err?.response?.data?.message || 'Something went wrong');
+    if (id && !selectedComment) {
+      const payload = {
+        ...data,
+        roomId: id,
+      };
+      console.log(payload);
+      createComment(payload, {
+        onSuccess: (res) => {
+          toast.success(res.message);
+          querClient.invalidateQueries({
+            queryKey: ["roomComments"],
+          });
+          setComment("comment", "");
+        },
+        onError: (err) => {
+          toast.error(err?.response?.data?.message || "Something went wrong");
+        },
+      });
+    } else {
+      updateComment(
+        {
+          comment: data.comment, // your current input value
+          id: selectedComment?._id ?? "",
+        },
+        {
+          onSuccess: (res) => {
+            toast.success(res.message);
 
-      }
-    })
-}else{
-updateComment(
-    {
-      comment: data.comment, // your current input value
-      id: selectedComment?._id??"",
-    },
-    {
-      onSuccess: (res) => {
-        toast.success(res.message);
+            // Invalidate and refetch the comments list
+            querClient.invalidateQueries({
+              queryKey: ["roomComments"],
+            });
+            setComment("comment", "");
 
-        // Invalidate and refetch the comments list
-        querClient.invalidateQueries({
-          queryKey: ['roomComments'],
-        });
-setComment("comment",'')
-
-        // Reset the input field
-      },
-      onError: (err: AxiosError<{ message: string }>) => {
-        const errorMessage =
-          err?.response?.data?.message || 'Something went wrong';
-        toast.error(errorMessage);
-      },
-    }
-  );
-}
-  
-  }
-//deleye comment
-  const delteComment=(id:string)=>{
-    console.log(id)
-    if(id){
-      deleteComment(id,{
-        onSuccess:(res)=>{
-      toast.success(res.message)
-querClient.invalidateQueries({
-  queryKey:['roomComments']
-})
+            // Reset the input field
+          },
+          onError: (err: AxiosError<{ message: string }>) => {
+            const errorMessage =
+              err?.response?.data?.message || "Something went wrong";
+            toast.error(errorMessage);
+          },
         }
-           , onError:(err)=>{
-            console.log(err)
-  toast.error(err?.response?.data?.message || 'Something went wrong');
-
-      }
-      })
+      );
     }
-  }
-const [selectedComment,setSelectedComment]=useState<null|{comment:string,_id:string}>(null)
-  
-  const {data:reviews,isLoading:isLoadingReviewing}=useGetReviews(id!)
-  const {data:comments,isLoading:isLoadingComment}=useGetComments(id!)
+  };
+  //deleye comment
+  const delteComment = (id: string) => {
+    console.log(id);
+    if (id) {
+      deleteComment(id, {
+        onSuccess: (res) => {
+          toast.success(res.message);
+          querClient.invalidateQueries({
+            queryKey: ["roomComments"],
+          });
+        },
+        onError: (err) => {
+          console.log(err);
+          toast.error(err?.response?.data?.message || "Something went wrong");
+        },
+      });
+    }
+  };
+  const [selectedComment, setSelectedComment] = useState<null | {
+    comment: string;
+    _id: string;
+  }>(null);
+
+  const { data: reviews, isLoading: isLoadingReviewing } = useGetReviews(
+    id!,
+    enable
+  );
+  const { data: comments, isLoading: isLoadingComment } = useGetComments(
+    id!,
+    enable
+  );
 
   const details = [
-  { img: bedimg, number: "5", desc: t("user.Bedrooms") },
-  { img: livimg, number: "1", desc: t("user.LivingRoom") },
-  { img: bathimg, number: "3", desc: t("user.Bathrooms") },
-  { img: dingimg, number: "1", desc: t("user.DiningRoom") },
-  { img: wifiimg, number: "10", desc: t("user.Wifi") },
-  { img: unitsimg, number: "7", desc: t("user.UnitsReady") },
-  { img: refimg, number: "2", desc: t("user.Refrigerators") },
-  { img: tvimg, number: "4", desc: t("user.Televisions") },
-];
+    { img: bedimg, number: "5", desc: t("user.Bedrooms") },
+    { img: livimg, number: "1", desc: t("user.LivingRoom") },
+    { img: bathimg, number: "3", desc: t("user.Bathrooms") },
+    { img: dingimg, number: "1", desc: t("user.DiningRoom") },
+    { img: wifiimg, number: "10", desc: t("user.Wifi") },
+    { img: unitsimg, number: "7", desc: t("user.UnitsReady") },
+    { img: refimg, number: "2", desc: t("user.Refrigerators") },
+    { img: tvimg, number: "4", desc: t("user.Televisions") },
+  ];
 
   const realPrice = room?.price
     ? room?.price - ((room?.discount ?? 0) / 100) * room?.price
@@ -222,7 +235,6 @@ const [selectedComment,setSelectedComment]=useState<null|{comment:string,_id:str
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [guests, setGusters] = useState(1);
-
 
   // const [finalPrice,setFinalPrice]=useState(realPrice)
   const pickerRef = useRef<PickerHandle>(null);
@@ -247,10 +259,10 @@ const [selectedComment,setSelectedComment]=useState<null|{comment:string,_id:str
   const { mutate: addBooking, isPending } = useAddBooking();
   const naivgate = useNavigate();
   const handelBooking = () => {
-   if (!localStorage.getItem("token")) {
-        toast.error(t("user.pleaseBook"));
-        return;
-      }
+    if (!localStorage.getItem("token")) {
+      toast.error(t("user.pleaseBook"));
+      return;
+    }
     addBooking(
       {
         room: id ?? "",
@@ -266,42 +278,36 @@ const [selectedComment,setSelectedComment]=useState<null|{comment:string,_id:str
       }
     );
   };
-  useEffect(()=>{
-if(selectedComment){
-  setComment('comment',selectedComment.comment)
-}
-  },[selectedComment])
+  useEffect(() => {
+    if (selectedComment) {
+      setComment("comment", selectedComment.comment);
+    }
+  }, [selectedComment, setComment]);
   // console.log(reviews?.data.roomRe
   // views)
-const ImageSlot = ({
-  src,
-  height,
-}: {
-  src?: string;
-  height: number;
-}) => {
-  if (!src) return null; // return nothing if no image
+  const ImageSlot = ({ src, height }: { src?: string; height: number }) => {
+    if (!src) return null; // return nothing if no image
 
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        height,
-        borderRadius: "15px",
-        overflow: "hidden",
-        mb: 2,
-      }}
-    >
+    return (
       <Box
-        component="img"
-        src={src}
-        width="100%"
-        height="100%"
-        sx={{ objectFit: "cover" }}
-      />
-    </Box>
-  );
-};
+        sx={{
+          width: "100%",
+          height,
+          borderRadius: "15px",
+          overflow: "hidden",
+          mb: 2,
+        }}
+      >
+        <Box
+          component="img"
+          src={src}
+          width="100%"
+          height="100%"
+          sx={{ objectFit: "cover" }}
+        />
+      </Box>
+    );
+  };
 
   return (
     <>
@@ -340,17 +346,16 @@ const ImageSlot = ({
         </Breadcrumbs>
         {/* images */}
         <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid size={{ xs: 12, md: room?.images.length===1?12:4 }} >
-
-           <ImageSlot src={room?.images?.[0]} height={480} />
+          <Grid size={{ xs: 12, md: room?.images.length === 1 ? 12 : 4 }}>
+            <ImageSlot src={room?.images?.[0]} height={480} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-           <ImageSlot src={room?.images?.[1]} height={240} />
-    <ImageSlot src={room?.images?.[2]} height={240} />
+            <ImageSlot src={room?.images?.[1]} height={240} />
+            <ImageSlot src={room?.images?.[2]} height={240} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-         <ImageSlot src={room?.images?.[3]} height={240} />
-    <ImageSlot src={room?.images?.[4]} height={240} />
+            <ImageSlot src={room?.images?.[3]} height={240} />
+            <ImageSlot src={room?.images?.[4]} height={240} />
           </Grid>
         </Grid>
 
@@ -587,334 +592,498 @@ const ImageSlot = ({
           spacing={2}
           sx={{ mt: 4, borderRadius: "15px", border: "1px solid #e5e5e5" }}
         >
-          <Grid size={{ xs: 12, md: 6 }} sx={{p:2}}>
-          <Typography sx={{color:theme.palette.text.disabled,fontWeight:600,fontSize:"18px"}}>{t("user.rate")}</Typography>
+          <Grid size={{ xs: 12, md: 6 }} sx={{ p: 2 }}>
+            <Typography
+              sx={{
+                color: theme.palette.text.disabled,
+                fontWeight: 600,
+                fontSize: "18px",
+              }}
+            >
+              {t("user.rate")}
+            </Typography>
 
- <Box sx={{ width: 200, display: 'flex', alignItems: 'center',my:2 }}>
-      <Rating
-        name="hover-feedback"
-        value={value}
-        precision={1}
-        getLabelText={getLabelText}
-        onChange={(_event, newValue) => {
-          setValue(newValue);
-        }}
-        onChangeActive={(_event, newHover) => {
-          setHover(newHover);
-        }}
-        emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-      />
-      {value !== null && (
-        <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>
-      )}
-    </Box>
-          <TextField 
-          multiline
-          fullWidth
-          rows={5}
-          placeholder="Please type here"
-          {...registerRate("review", { required: t('user.reviewrequired') })} 
-          error={!!errorsRate.review}
-          helperText={errorsRate.review?.message}
-          />
-<Button variant="contained" sx={{mt:2}}
+            <Box
+              sx={{ width: 200, display: "flex", alignItems: "center", my: 2 }}
+            >
+              <Rating
+                name="hover-feedback"
+                value={value}
+                precision={1}
+                getLabelText={getLabelText}
+                onChange={(_event, newValue) => {
+                  setValue(newValue);
+                }}
+                onChangeActive={(_event, newHover) => {
+                  setHover(newHover);
+                }}
+                emptyIcon={
+                  <StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />
+                }
+              />
+              {value !== null && (
+                <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>
+              )}
+            </Box>
+            <TextField
+              multiline
+              fullWidth
+              rows={5}
+              placeholder="Please type here"
+              {...registerRate("review", {
+                required: t("user.reviewrequired"),
+              })}
+              error={!!errorsRate.review}
+              helperText={errorsRate.review?.message}
+            />
+            <Button
+              variant="contained"
+              sx={{ mt: 2 }}
+              disabled={isReview || !localStorage.getItem("token")}
+              onClick={handleSubmitRate(onSubmitRate)}
+            >
+              {isReview ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
 
-disabled={isReview ||!localStorage.getItem("token")}
-
-onClick={handleSubmitRate(onSubmitRate)} 
->
-
-    {isReview?<>
-                      <CircularProgress size={20} sx={{  mr: 1 }}  />
-        
-      {  t("user.rating")}
-        </>
-        :
-      t("user.rate")}
-</Button>
+                  {t("user.rating")}
+                </>
+              ) : (
+                t("user.rate")
+              )}
+            </Button>
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }} sx={{p:2}}>
-              <Typography sx={{color:theme.palette.text.disabled,fontWeight:600,fontSize:"18px"}}>{t("user.AddYourComment")}</Typography>
-               <Box sx={{ width: 200, display: 'flex', alignItems: 'center',my:2 ,height:24}}>
-
-    </Box>
-          <TextField 
-          multiline
-          fullWidth
-          rows={5}
-                    placeholder="Please type here"
-                    {...registerComment("comment", { required:t('user.commentRequired') })}
-          error={!!errorsComment.comment}
-          helperText={errorsComment.comment?.message}
-
-          />
-          <Button variant="contained"
-          
-          onClick={handleSubmitComment(onSubmitComment)} 
-disabled={isCommenting ||!localStorage.getItem("token")}
-
-          sx={{mt:2}}>{
-            isCommenting?<>
-                  <CircularProgress size={20} sx={{  mr: 1 }}  />
-        
-      {  t("user.commenting")}
-            </>
-      :
-            t("user.AddYourComment")}</Button>
+          <Grid size={{ xs: 12, md: 6 }} sx={{ p: 2 }}>
+            <Typography
+              sx={{
+                color: theme.palette.text.disabled,
+                fontWeight: 600,
+                fontSize: "18px",
+              }}
+            >
+              {t("user.AddYourComment")}
+            </Typography>
+            <Box
+              sx={{
+                width: 200,
+                display: "flex",
+                alignItems: "center",
+                my: 2,
+                height: 24,
+              }}
+            ></Box>
+            <TextField
+              multiline
+              fullWidth
+              rows={5}
+              placeholder="Please type here"
+              {...registerComment("comment", {
+                required: t("user.commentRequired"),
+              })}
+              error={!!errorsComment.comment}
+              helperText={errorsComment.comment?.message}
+            />
+            <Button
+              variant="contained"
+              onClick={handleSubmitComment(onSubmitComment)}
+              disabled={isCommenting || !localStorage.getItem("token")||isUpdatingComment}
+              sx={{ mt: 2 }}
+            >
+             {isCommenting || isUpdatingComment ? (
+  <>
+    <CircularProgress size={20} sx={{ mr: 1 }} />
+    {selectedComment ? t("user.updating") : t("user.commenting")}
+  </>
+) : (
+  selectedComment ? t("user.updateComment") : t("user.AddYourComment")
+)}
+            </Button>
           </Grid>
         </Grid>
       </Box>
       {/* show comments and reviews */}
-      <Box sx={{ typography: 'body1',m:4 }}>
-    <TabContext value={tabVal}>
-      {/* Tabs with Grid layout */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider',backgroundColor:"#e7eeff",p:1,borderRadius:"8px" }}>
-        <Grid container>
-          <Grid size={{xs:12,md:6}}>
-            <TabList
-              onChange={handleChange}
-              aria-label="lab API tabs example"
-              variant="fullWidth" 
+      <Box sx={{ typography: "body1", m: 4 }}>
+        <TabContext value={tabVal}>
+          {/* Tabs with Grid layout */}
+          <Box
             sx={{
-    '& .MuiTabs-indicator': {
-      display: 'none',  // Hides the underline
-    },
-  }}
+              borderBottom: 1,
+              borderColor: "divider",
+              backgroundColor: "#e7eeff",
+              p: 1,
+              borderRadius: "8px",
+            }}
+          >
+            <Grid container>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TabList
+                  onChange={handleChange}
+                  aria-label="lab API tabs example"
+                  variant="fullWidth"
+                  sx={{
+                    "& .MuiTabs-indicator": {
+                      display: "none", // Hides the underline
+                    },
+                  }}
+                >
+                  <Tab
+                    sx={{
+                      backgroundColor: tabVal === "1" ? "white" : "transparent",
+                      borderRadius: "8px",
+                      boxShadow:
+                        tabVal === "1"
+                          ? "0px 4px 12px rgba(0, 0, 0, 0.1)"
+                          : "none",
+                      transition: "all 0.3s ease",
+                      textTransform: "none",
+                      fontWeight: tabVal === "1" ? 600 : 500,
+
+                      color: theme.palette.text.disabled,
+                      "&.Mui-selected": {
+                        color: theme.palette.text.disabled + " !important",
+                      },
+                      opacity: tabVal === "1" ? 1 : 0.7,
+
+                      "&:hover": {
+                        opacity: 1,
+                        backgroundColor:
+                          tabVal === "1"
+                            ? "white"
+                            : "rgba(255, 255, 255, 0.08)",
+                      },
+                    }}
+                    label={
+                      <Stack direction={"row"} gap={1}>
+                        <StarBorderIcon sx={{ color: "rgb(250, 175, 0)" }} />
+                        <Typography sx={{color:"#152C5B"}}>{t("user.reviews")}</Typography>
+                      </Stack>
+                    }
+                    value="1"
+                  />
+                </TabList>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TabList
+                  onChange={handleChange}
+                  aria-label="lab API tabs example"
+                  variant="fullWidth"
+                  sx={{
+                    "& .MuiTabs-indicator": {
+                      display: "none", // Hides the underline
+                    },
+                  }}
+                >
+                  <Tab
+                    sx={{
+                      backgroundColor: tabVal === "2" ? "white" : "transparent",
+                      borderRadius: "8px",
+                      boxShadow:
+                        tabVal === "2"
+                          ? "0px 4px 12px rgba(0, 0, 0, 0.1)"
+                          : "none",
+                      transition: "all 0.3s ease",
+                      textTransform: "none",
+                      fontWeight: tabVal === "2" ? 600 : 500,
+
+                      color: theme.palette.text.disabled,
+                      "&.Mui-selected": {
+                        color: theme.palette.text.disabled + " !important",
+                      },
+                      opacity: tabVal === "2" ? 1 : 0.7,
+
+                      "&:hover": {
+                        opacity: 1,
+                        backgroundColor:
+                          tabVal === "2"
+                            ? "white"
+                            : "rgba(255, 255, 255, 0.08)",
+                      },
+                    }}
+                    label={
+                      <Stack direction={"row"} gap={1}>
+                        <CreateIcon sx={{ color: "primary.main" }} />
+                        <Typography sx={{color:'#152C5B'}}>{t("user.comments")}</Typography>
+                      </Stack>
+                    }
+                    value="2"
+                  />
+                </TabList>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* Tab Panels */}
+          <TabPanel value="1">
+            <Grid
+              container
+              spacing={2}
+              sx={{ border: "1px solid #e5e5e5", borderRadius: "8px", p: 4 }}
             >
-              <Tab 
-     sx={{
-    backgroundColor: tabVal === '1' ? 'white' : 'transparent',
-    borderRadius: '8px',
-    boxShadow: tabVal === '1' ? '0px 4px 12px rgba(0, 0, 0, 0.1)' : 'none',
-    transition: 'all 0.3s ease',
-    textTransform: 'none',
-    fontWeight: tabVal === '1' ? 600 : 500,
-
-    color: theme.palette.text.disabled,
-'&.Mui-selected': {
-      color: theme.palette.text.disabled + ' !important', 
-    },
-    opacity: tabVal === '1' ? 1 : 0.7,
-
-    '&:hover': {
-      opacity: 1,
-      backgroundColor: tabVal === '1' ? 'white' : 'rgba(255, 255, 255, 0.08)',
-    },
-  }}
-              
-              label={
-                <Stack direction={'row'} gap={1}>
-                <StarBorderIcon sx={{color:'rgb(250, 175, 0)'}}/>
-                <Typography >{t("user.reviews")}</Typography>
-                </Stack>
-              } value="1" />
-            </TabList>
-          </Grid>
-
-          <Grid size={{xs:12,md:6}}>
-          <TabList
-              onChange={handleChange}
-              aria-label="lab API tabs example"
-              variant="fullWidth" 
-            sx={{
-    '& .MuiTabs-indicator': {
-      display: 'none',  // Hides the underline
-    },
-  }}
-            >
-              <Tab 
-     sx={{
-    backgroundColor: tabVal === '2' ? 'white' : 'transparent',
-    borderRadius: '8px',
-    boxShadow: tabVal === '2' ? '0px 4px 12px rgba(0, 0, 0, 0.1)' : 'none',
-    transition: 'all 0.3s ease',
-    textTransform: 'none',
-    fontWeight: tabVal === '2' ? 600 : 500,
-
-    color: theme.palette.text.disabled,
-'&.Mui-selected': {
-      color: theme.palette.text.disabled + ' !important', 
-    },
-    opacity: tabVal === '2' ? 1 : 0.7,
-
-    '&:hover': {
-      opacity: 1,
-      backgroundColor: tabVal === '2' ? 'white' : 'rgba(255, 255, 255, 0.08)',
-    },
-  }}
-              
-              label={
-                <Stack direction={'row'} gap={1}>
-                <CreateIcon sx={{color:'primary.main'}}/>
-                <Typography >{t("user.comments")}</Typography>
-                </Stack>
-              } value="2" />
-            </TabList>
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* Tab Panels */}
-      <TabPanel value="1">
-       <Grid container spacing={2} sx={{border:"1px solid #e5e5e5",borderRadius:"8px",p:
-          4
-        }}>
-          {isAuthenticated?
-<>
-
+           {isLoadingReviewing ? (
+  // Skeleton Loader
   <Grid size={{ xs: 12, md: 6 }}>
-  <Stack 
-    divider={<Divider flexItem />}   
-    spacing={3}                    
-  >
-    {reviews?.data.roomReviews.map(({ _id, createdAt, user, rating, review }) => (
-      <Stack 
-        key={_id} 
-        direction="row" 
-        gap={2} 
-        alignItems="flex-start"
-      >
-        <Box
-          component="img"
-          src={user.profileImage}
-          alt={user.userName}
-          sx={{ 
-            width: 48, 
-            height: 48, 
-            borderRadius: "50%", 
-            objectFit: "cover",
-            flexShrink: 0 
-          }}
-        />
+    <Stack divider={<Divider flexItem />} spacing={3}>
+      {[1, 2, 3].map((i) => (
+        <Stack key={i} direction="row" gap={2} alignItems="flex-start">
+          <Skeleton variant="circular" width={48} height={48} />
 
-        <Stack gap={1} sx={{ flex: 1 }}>
-          <Typography sx={{ fontWeight: 500, color: theme.palette.text.disabled }}>
-            {user.userName}
-          </Typography>
+          <Stack gap={1} sx={{ flex: 1 }}>
+            <Skeleton variant="text" width="120px" />
+            
+            <Stack direction="row" gap={0.5}>
+              {Array.from({ length: 5 }).map((_, star) => (
+                <Skeleton key={star} variant="rectangular" width={20} height={20} />
+              ))}
+            </Stack>
 
-          <Stack direction="row">
-            {Array.from({ length: 5 }, (_, i) =>
-              i < rating ? (
-                <StarIcon key={i} sx={{ color: 'rgb(250, 175, 0)', fontSize: 20 }} />
-              ) : (
-                <StarBorderIcon key={i} sx={{ color: 'rgb(250, 175, 0)', fontSize: 20 }} />
-              )
-            )}
-          </Stack>
+            <Skeleton variant="text" width="100%" />
+            <Skeleton variant="text" width="100%" />
+            <Skeleton variant="text" width="70%" />
 
-          <Typography sx={{ color: 'oklch(0.373 0.034 259.733)', wordBreak: 'break-word' }}>
-            {review}
-          </Typography>
-
-          <Stack direction="row" gap={1} alignItems="center">
-            <CalendarMonthIcon fontSize="small" />
-            <Typography variant="body2">
-              {new Date(createdAt).toLocaleDateString()}
-            </Typography>
+            <Skeleton variant="text" width="150px" />
           </Stack>
         </Stack>
+      ))}
+    </Stack>
+  </Grid>
+) : (reviews?.data.roomReviews.length??0) > 0 ? (
+  // Has reviews → show them
+  <>
+    <Grid size={{ xs: 12, md: 6 }}>
+      <Stack divider={<Divider flexItem />} spacing={3}>
+        {reviews?.data.roomReviews.map(
+          ({ _id, createdAt, user, rating, review }) => (
+            <Stack
+              key={_id}
+              direction="row"
+              gap={2}
+              alignItems="flex-start"
+            >
+              <Box
+                component="img"
+                src={user.profileImage || "/default-avatar.png"} // fallback recommended
+                alt={user.userName}
+                sx={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  flexShrink: 0,
+                }}
+              />
+
+              <Stack gap={1} sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    fontWeight: 500,
+                    color: theme.palette.text.disabled,
+                  }}
+                >
+                  {user.userName}
+                </Typography>
+
+                <Stack direction="row">
+                  {Array.from({ length: 5 }, (_, i) =>
+                    i < rating ? (
+                      <StarIcon
+                        key={i}
+                        sx={{ color: "rgb(250, 175, 0)", fontSize: 20 }}
+                      />
+                    ) : (
+                      <StarBorderIcon
+                        key={i}
+                        sx={{ color: "rgb(250, 175, 0)", fontSize: 20 }}
+                      />
+                    )
+                  )}
+                </Stack>
+
+                <Typography
+                  sx={{
+                    color: "oklch(0.373 0.034 259.733)",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {review}
+                </Typography>
+
+                <Stack direction="row" gap={1} alignItems="center">
+                  <CalendarMonthIcon fontSize="small" />
+                  <Typography variant="body2">
+                    {new Date(createdAt).toLocaleDateString()}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Stack>
+          )
+        )}
       </Stack>
-    ))}
-  </Stack>
-</Grid>
-          <Grid size={{xs:12,md:6}} sx={{p:2,display:{xs:"none",md:"block"}}}>
-<Box component={'img'} src={review} sx={{width:"70%"}}/>
-          </Grid>
-</>
+    </Grid>
 
-          :<Stack gap={2} justifyContent={'center'} alignItems={'center'} sx={{width:"100%"}}>
-          <Stack justifyContent={'center'} sx={{width:"100%",alignItems:"center"}}>
-                      <Box component={'img'} src={empty} sx={{height:192,width:192}}/>
-
-          </Stack>
-          <Typography>{t("user.noLog")}</Typography>
-          </Stack>
-        }
-        </Grid>
-      </TabPanel>
-      <TabPanel value="2">
-
-  <Grid container spacing={2} sx={{border:"1px solid #e5e5e5",borderRadius:"8px",p:
-          4
-        }}>
-
-               {isAuthenticated?<>
-                 <Grid size={{ xs: 12, md: 6 }}>
-  <Stack 
-    divider={<Divider flexItem />}   
-    spacing={3}                    
+    <Grid
+      size={{ xs: 12, md: 6 }}
+      sx={{ p: 2, display: { xs: "none", md: "block" } }}
+    >
+      <Box component="img" src={review} sx={{ width: "70%" }} />
+    </Grid>
+  </>
+) : isAuthenticated ? (
+  // Logged in, but no reviews yet
+  <Stack
+    gap={2}
+    justifyContent="center"
+    alignItems="center"
+    sx={{ width: "100%", py: 8 }}
   >
-    {comments?.data.roomComments.map(({ _id, createdAt, user,comment }) => (
-      <Stack 
-        key={_id} 
-        direction="row" 
-        gap={2} 
-        alignItems="flex-start"
-      >
-        <Box
-          component="img"
-          src={user.profileImage}
-          alt={user.userName}
-          sx={{ 
-            width: 48, 
-            height: 48, 
-            borderRadius: "50%", 
-            objectFit: "cover",
-            flexShrink: 0 
-          }}
-        />
+    <Box component="img" src={empty} sx={{ height: 192, width: 192 }} />
+    <Typography>{t("room.noReviewsYet")}</Typography>
+  </Stack>
+) : (
+  // Not logged in
+  <Stack
+    gap={2}
+    justifyContent="center"
+    alignItems="center"
+    sx={{ width: "100%", py: 8 }}
+  >
+    <Box component="img" src={empty} sx={{ height: 192, width: 192 }} />
+    <Typography>{t("user.noLog")}</Typography>
+  </Stack>
+)}
+            </Grid>
+          </TabPanel>
+          <TabPanel value="2">
+            <Grid
+              container
+              spacing={2}
+              sx={{ border: "1px solid #e5e5e5", borderRadius: "8px", p: 4 }}
+            >
+           {isLoadingComment ? (
+  // Skeleton while comments are loading
+  <Grid size={{ xs: 12, md: 6 }}>
+    <Stack divider={<Divider flexItem />} spacing={3}>
+      {[1, 2, 3].map((i) => (
+        <Stack key={i} direction="row" gap={2} alignItems="flex-start">
+          <Skeleton variant="circular" width={48} height={48} />
 
-        <Stack gap={1} sx={{ flex: 1 }}>
-          <Typography sx={{ fontWeight: 500, color: theme.palette.text.disabled }}>
-            {user.userName}
-          </Typography>
-
-        
-
-          <Typography sx={{ color: 'oklch(0.373 0.034 259.733)', wordBreak: 'break-word' }}>
-            {comment}
-          </Typography>
-
-          <Stack direction="row" gap={1} alignItems="center">
-            <CalendarMonthIcon fontSize="small" />
-            <Typography variant="body2">
-              {new Date(createdAt).toLocaleDateString()}
-            </Typography>
+          <Stack gap={1} sx={{ flex: 1 }}>
+            <Skeleton variant="text" width="40%" />
+            <Skeleton variant="text" width="100%" />
+            <Skeleton variant="text" width="70%" />
+            <Skeleton variant="text" width="30%" />
           </Stack>
         </Stack>
-        {fillData?._id===user._id&&<>
-        <IconButton onClick={()=>delteComment(_id)} disabled={isDeletingComment}>
-                  <DeleteIcon sx={{color:"#f6454b"}}/>
+      ))}
+    </Stack>
+  </Grid>
+) : (comments?.data?.roomComments.length??0) > 0 ? (
+  // Has comments → show them
+  <>
+    <Grid size={{ xs: 12, md: 6 }}>
+      <Stack divider={<Divider flexItem />} spacing={3}>
+        {comments?.data.roomComments.map(
+          ({ _id, createdAt, user, comment }) => (
+            <Stack
+              key={_id}
+              direction="row"
+              gap={2}
+              alignItems="flex-start"
+            >
+              <Box
+                component="img"
+                src={user.profileImage || "/default-avatar.png"} // fallback image
+                alt={user.userName}
+                sx={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  flexShrink: 0,
+                }}
+              />
 
-        </IconButton>
-        <IconButton sx={{color:"rgb(126, 133, 146)"}} onClick={()=>setSelectedComment({comment,_id})}>
+              <Stack gap={1} sx={{ flex: 1 }}>
+                <Typography fontWeight={500} color="text.secondary">
+                  {user.userName}
+                </Typography>
 
-<EditIcon/>
-        </IconButton>
-        </>}
+                <Typography
+                  sx={{
+                    color: "oklch(0.373 0.034 259.733)",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {comment}
+                </Typography>
+
+                <Stack direction="row" gap={1} alignItems="center">
+                  <CalendarMonthIcon fontSize="small" />
+                  <Typography variant="body2">
+                    {new Date(createdAt).toLocaleDateString()}
+                  </Typography>
+                </Stack>
+              </Stack>
+
+              {fillData?._id === user._id && (
+                <>
+                  <IconButton
+                    onClick={() => delteComment(_id)}
+                    disabled={isDeletingComment}
+                  >
+                    {isDeletingComment ? (
+                      <CircularProgress size={24} />
+                    ) : (
+                      <DeleteIcon sx={{ color: "#f6454b" }} />
+                    )}
+                  </IconButton>
+                  <IconButton
+                    onClick={() => setSelectedComment({ comment, _id })}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </>
+              )}
+            </Stack>
+          )
+        )}
       </Stack>
-    ))}
+    </Grid>
+
+    <Grid
+      size={{ xs: 12, md: 6 }}
+      sx={{ p: 2, display: { xs: "none", md: "block" } }}
+    >
+      <Box component="img" src={commentImg} sx={{ width: "70%" }} />
+    </Grid>
+  </>
+) : isAuthenticated ? (
+  // Logged in, but no comments yet
+  <Stack
+    gap={2}
+    justifyContent="center"
+    alignItems="center"
+    sx={{ width: "100%", py: 8 }}
+  >
+    <Box component="img" src={empty} sx={{ height: 192, width: 192 }} />
+    <Typography>{t("room.noCommentsYet")}</Typography>
   </Stack>
-</Grid>
-          <Grid size={{xs:12,md:6}} sx={{p:2,display:{xs:"none",md:"block"}}}>
-<Box component={'img'} src={commentImg} sx={{width:"70%"}}/>
-          </Grid>
-          
-          </>:
-          <Stack gap={2} justifyContent={'center'} alignItems={'center'} sx={{width:"100%"}}>
-          <Stack justifyContent={'center'} sx={{width:"100%",alignItems:"center"}}>
-                      <Box component={'img'} src={empty} sx={{height:192,width:192}}/>
-
-          </Stack>
-          <Typography>{t("user.noLog")}</Typography>
-          </Stack>}
-               
-
-        </Grid>
-
-      </TabPanel>
-    </TabContext>
-  </Box>
+) : (
+  // Not logged in
+  <Stack
+    gap={2}
+    justifyContent="center"
+    alignItems="center"
+    sx={{ width: "100%", py: 8 }}
+  >
+    <Box component="img" src={empty} sx={{ height: 192, width: 192 }} />
+    <Typography>{t("user.noLogC")}</Typography>
+  </Stack>
+)}
+            </Grid>
+          </TabPanel>
+        </TabContext>
+      </Box>
     </>
   );
 }

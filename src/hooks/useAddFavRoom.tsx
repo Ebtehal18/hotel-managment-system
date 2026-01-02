@@ -95,7 +95,7 @@ console.log(previousTodos)
 
     // Return a context object with the snapshotted value
   },
-  onError: (err, _, context) => {
+  onError: (_err, _, context) => {
       // Rollback on error
       if (context?.previousTodos) {
         queryClient.setQueryData(["favRooms"], context.previousTodos);

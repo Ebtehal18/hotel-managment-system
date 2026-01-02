@@ -30,6 +30,7 @@ import Fav from "./components/user/Favourites/Fav";
 import Pay from "./components/user/Payment/Pay";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js'
+import Profile from "./components/user/Profile/Profile";
 
 const stripe=loadStripe("pk_test_51OTjURBQWp069pqTmqhKZHNNd3kMf9TTynJtLJQIJDOSYcGM7xz3DabzCzE7bTxvuYMY0IX96OHBjsysHEKIrwCK006Mu7mKw8");
 
@@ -45,6 +46,7 @@ function App() {
         {path:"explore",element:<Explore/>},
         {path:"booking",element:<UserBooking/>},
         {path:"room-detail/:id",element:<RoomDetails/>},
+        {path:"profile",element:<Profile/>},
         {path:"fav",element:<Fav/>},
         {path:"checkOut/:bookingId",element:<Elements stripe={stripe}>
           

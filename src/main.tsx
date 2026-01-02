@@ -21,13 +21,12 @@ import {
 } from '@tanstack/react-query'
 import { FilterContextProvider } from "./context/FilterContex.tsx";
 import { FavProvider } from "./context/FavaContext.tsx";
-import { LanguageProvider } from "./context/Lang.tsx";
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
+    <I18nextProvider i18n={i18n}>  
       <DarkThemeProvider>
         <AuthProvider>
           <FavProvider>                          {/* ← FavProvider is still inside AuthProvider */}
@@ -38,7 +37,7 @@ createRoot(document.getElementById("root")!).render(
           </FavProvider>
         </AuthProvider>
       </DarkThemeProvider>
-    </LanguageProvider>
+    </I18nextProvider>
   </QueryClientProvider>
 </StrictMode>
  
