@@ -8,6 +8,9 @@
   font-family: "Rubik", sans-serif
 
 }
+body,html{
+  overflow-x: hidden;
+}
 
 .custom-range-picker .rs-picker-toggle {
   height: 60px !important;

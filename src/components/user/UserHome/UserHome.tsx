@@ -77,9 +77,9 @@ export default function UserHome() {
   setEndDate(endStr ? dayjs(endStr) : null);
   };
   return (
-    <Box sx={{ p: 4, mt: 2 }}>
+    <Box sx={{ p: {xs:0,md:4}, mt: 2 }}>
       <Grid container spacing={2} justifyContent={"space-between"}>
-        <Grid size={{ xs: 12, md: 6 }} sx={{ p: 3 }}>
+        <Grid size={{ xs: 12, md: 6 }} sx={{ p: {xs:2,md:3}}}>
           <Stack sx={{ alignItems: { xs: "center", md: "start" } }}>
             <Stack justifyContent={"center"}>
               <Typography
@@ -122,7 +122,7 @@ export default function UserHome() {
             </Typography>
             <Paper
               elevation={2}
-              sx={{ mt: 2, p: 3, width: { xs: "100%", sm: "80%" } }}
+              sx={{ mt: 2, p: 3, width: { xs: "100%", sm: "80%" }}}
             >
               <Stack gap={1.5}>
                 {/* date */}
@@ -251,7 +251,7 @@ export default function UserHome() {
           </Stack>
         </Grid>
         <Grid size={{ xs: 12, md: 6 }} order={{ xs: 2, sm: 1 }}>
-          <Stack justifyContent="center" alignItems="center" sx={{ p: 3 }}>
+          <Stack justifyContent="center" alignItems="center" sx={{ p: {xs:4,md:3} }}>
             <Box
               sx={{
                 position: "relative",
@@ -262,8 +262,8 @@ export default function UserHome() {
               <Box
                 sx={{
                   position: "absolute",
-                  top: 40,
-                  left: 32,
+                  top: {xs:20,md:40},
+                  left: {xs:15,md:32},
                   width: "100%",
                   height: "100%",
                   border: "2px solid #E5E5E5",
@@ -281,6 +281,7 @@ export default function UserHome() {
                 sx={{
                   height: 450,
                   position: "relative",
+                  width:{xs:'85%',md:"100%"},
                   zIndex: 1,
                   transition: "all 0.4s ease",
                 }}
@@ -289,12 +290,22 @@ export default function UserHome() {
           </Stack>
         </Grid>
       </Grid>
-      <Box sx={{ p: 3 }}>
-        <MostPopularAds />
-        <Houses />
-        <Hotels />
-        <HappyFamliy />
-      </Box>{" "}
+     <Box sx={{ p: { xs: 2, md: 3 } }}>
+  <MostPopularAds />
+
+  {/* Houses: hidden on mobile */}
+  <Box sx={{ display: { xs: "none", md: "block" } }}>
+    <Houses />
+  </Box>
+
+  {/* Hotels: hidden on mobile */}
+  <Box sx={{ display: { xs: "none", md: "block" } }}>
+    <Hotels />
+  </Box>
+
+  {/* Testimonials always visible */}
+  <HappyFamliy />
+</Box>
     </Box>
   );
 }
