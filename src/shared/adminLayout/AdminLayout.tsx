@@ -26,7 +26,7 @@ import FeaturedVideoIcon from '@mui/icons-material/FeaturedVideo';
 import ClassIcon from '@mui/icons-material/Class';
 import BusinessIcon from '@mui/icons-material/Business';
 import { useTranslation } from 'react-i18next';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import {  NavLink, Outlet, useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import SwitchLng from '../../components/switchLng/SwitchLng';
 import { useMode } from '../../context/DarkTheme';
@@ -127,6 +127,7 @@ export default function AdminLayout() {
    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { mode, toggleMode } = useMode();
   const{fillData} =UseAuth()
+  console.log(fillData?.profileImage)
 // const location=useLocation()
 
   const handelToggleMode = () => {
@@ -159,74 +160,6 @@ const navigate=useNavigate()
   localStorage.removeItem("token")
   }
 
-  // const handelHeader=()=>{
-  //   switch(location.pathname){
-  //     case '/dashboard/users' :
-  //       return <>
-  //       <Typography sx={{fontWeight:500,fontSize:"1.25rem"}}>
-
-  //         {t("dashboard.users")} {t('dashboard.tableDetails')}
-  //       </Typography> 
-  //       <Typography sx={{fontSize:"0.875rem",color:theme.palette.secondary.main}}> {t('dashboard.Youcancheck')}</Typography>
-  //       </>
-
-  //     case '/dashboard/rooms' :
-  //       return <>
-  //       <Typography sx={{fontWeight:500,fontSize:"1.25rem"}}>
-
-  //         {t("dashboard.rooms")} {t('dashboard.tableDetails')}
-  //       </Typography> 
-  //       <Typography sx={{fontSize:"0.875rem",color:theme.palette.secondary.main}}> {t('dashboard.Youcancheck')}</Typography>
-  //       </>
-
-  //     case '/dashboard/ads' :
-  //       return  <>
-  //       <Typography sx={{fontWeight:500,fontSize:"1.25rem"}}>
-
-  //         { t("dashboard.ads")} {t('dashboard.tableDetails')}
-  //       </Typography> 
-  //       <Typography sx={{fontSize:"0.875rem",color:theme.palette.secondary.main}}> {t('dashboard.Youcancheck')}</Typography>
-  //       </>
-       
-  //     case '/dashboard/bookings' :
-  //       return <>
-  //       <Typography sx={{fontWeight:500,fontSize:"1.25rem"}}>
-
-  //         {t("dashboard.bookings")} {t('dashboard.tableDetails')}
-  //       </Typography> 
-  //       <Typography sx={{fontSize:"0.875rem",color:theme.palette.secondary.main}}> {t('dashboard.Youcancheck')}</Typography>
-  //       </>
-       
-        
-  //     case '/dashboard/facilities' :
-  //       return<>
-  //       <Typography sx={{fontWeight:500,fontSize:"1.25rem"}}>
-
-  //         {t("dashboard.facilities")} {t('dashboard.tableDetails')}
-  //       </Typography> 
-  //       <Typography sx={{fontSize:"0.875rem",color:theme.palette.secondary.main}}> {t('dashboard.Youcancheck')}</Typography>
-  //       </>
-       
-  //       default:
-  //         return ''
-  //   }
-  // }
-  // const handelShowBtn=()=>{
-  //   switch(location.pathname){
-  //     case '/dashboard/rooms':
-  //       return <Button component={Link} to={'/dashboard/rooms-data'} variant='contained'>
-  //       {  t("dashboard.addNewRoom")} 
-  //       </Button>
-  //     case '/dashboard/ads':
-  //       return <Button variant='contained'>
-  //       {  t("dashboard.addNewAds")}
-  //       </Button>
-  //     case '/dashboard/facilities':
-  //       return <Button variant='contained' component={Link} to={'/dashboard/facilities-data'} >
-  //        { t("dashboard.addNewFacility")}
-  //       </Button>
-  //   }
-  // }
   return (
     <>
     {isMobile?
@@ -243,10 +176,10 @@ const navigate=useNavigate()
                 open && { display: 'none' },
             ]}
             >
-            <MenuIcon />
+            <MenuIcon sx={{color:"#fff",mx:2}} />
           </IconButton>
                 <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} sx={{width:"100%"}}>
-             <Typography variant="h6" noWrap component="div" >
+             <Typography variant="h6" noWrap component="div"  sx={{color:"#fff"}}>
            {t("Staycation")}
           </Typography>
           
@@ -254,7 +187,7 @@ const navigate=useNavigate()
          
  
         <Stack direction={'row'} sx={{direction:"ltr"}} gap={1} alignItems={'center'}>
-         <Avatar sx={{width:50,height:50}} src={fillData?.profileImage??""}/>         <Typography>{fillData?.userName}</Typography>  
+         <Avatar sx={{width:50,height:50}} src={fillData?.profileImage??""}/>         <Typography sx={{color:"#fff"   }}>{fillData?.userName}</Typography>  
 
        </Stack>
         </Stack>
@@ -283,7 +216,13 @@ const navigate=useNavigate()
               </IconButton>
             </Stack>
         {items.map(({Icon,name,path}) => (
-          <ListItem key={name} disablePadding component={Link} to={path} sx={{color:'#fff',  "&:hover":{
+          <ListItem key={name} disablePadding 
+          component={ !path?'div': NavLink} end onClick={!path?handelLogOut:handleDrawerClose}
+          
+          to={path} sx={{color:'#fff', 
+                        direction:"ltr",
+
+             "&:hover":{
           color:"#fff",
           textDecoration:"none"
         }}}>

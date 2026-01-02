@@ -28,29 +28,33 @@ export default function Login() {
   } = useForm<ILogin>();
   const navigate=useNavigate()
   //submit the form
-  const {setFillData}=UseAuth()
-  const submitLogin = async (data: ILogin) => {
-    console.log(data);
-    try {
-      const response =await axiosPublicInstance.post(Auth.login, data);
-      toast.success(response?.data?.message);
-      localStorage.setItem("token",response.data.data.token)
+  const {getImageNameUser}=UseAuth()
+ const submitLogin = async (data: ILogin) => {
+  try {
+    const response = await axiosPublicInstance.post(Auth.login, data);
+    toast.success(response?.data?.message || "Login successful!");
 
-setFillData(response.data?.data?.user)
-     if(response.data.data.user.role==='admin'){
- navigate('/dashboard')
-     }else{
-      navigate("/")
-     }
-    } catch (error) {
-      console.log(error)
-      const axiosError = error as AxiosError<{ message?: string }>; // the response data.?
-      toast.error(
-        axiosError?.response?.data?.message || "There something went wrong"
-      );
- 
+    // 1. Save the token
+    localStorage.setItem("token", response.data.data.token);
+
+    // 2. IMPORTANT: Wait for the user profile to be fetched BEFORE navigating
+    await getImageNameUser();
+
+    // 3. Now navigate — fillData is guaranteed to be populated
+    const userRole = response.data.data.user.role;
+    if (userRole === "admin") {
+      navigate("/dashboard");
+    } else {
+      navigate("/");
     }
-  };
+  } catch (error) {
+    console.error("Login error:", error);
+    const axiosError = error as AxiosError<{ message?: string }>;
+    toast.error(
+      axiosError?.response?.data?.message || "Something went wrong. Please try again."
+    );
+  }
+};
   // if you want to re-run validation immediately on language change
   // trigger("email") forces RHF to re-run validation immediately on the current value of the field.
   // Since the rules object has changed (because you call getEmailValidation(i18n.language) in your render), the new validation messages are used.

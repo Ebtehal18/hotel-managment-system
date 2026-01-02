@@ -11,6 +11,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { UseFavorite } from "../../../context/FavaContext";
+import { UseAuth } from "../../../context/AuthContext";
 
 
 export default function Fav() {
@@ -19,6 +20,8 @@ export default function Fav() {
    const {data,isLoading}=useGetFav(page)
    const theme = useTheme();
  const {t}=useTranslation()
+ const {isAuthenticated}=UseAuth()
+ console.log(isAuthenticated)
    const rooms=data?.data.favoriteRooms[0].rooms
    console.log(rooms)
 const navigate=useNavigate()

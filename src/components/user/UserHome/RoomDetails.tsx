@@ -71,7 +71,7 @@ function getLabelText(value: number) {
 export default function RoomDetails() {
     const [tabVal, setTabVal] =useState('1');
 const {isAuthenticated,fillData}=UseAuth()
-console.log(fillData)
+console.log(isAuthenticated,fillData)
 // console.log(isAuthenticated)
   const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
     setTabVal(newValue);
@@ -89,6 +89,7 @@ console.log(fillData)
 const {
     register: registerRate,
     handleSubmit: handleSubmitRate,
+
     formState: { errors: errorsRate }, 
   } = useForm<IReviewCreate>();
 
@@ -107,7 +108,9 @@ const {mutate:updateComment,isPending:isUpdatingComment}=useUpdateComment()
 
 const querClient=useQueryClient()
   const onSubmitRate: SubmitHandler<IReviewCreate> = async (data) => {
+   
     if(id){
+       
       const payload={
       ...data,
       rating:value,
@@ -201,16 +204,17 @@ const [selectedComment,setSelectedComment]=useState<null|{comment:string,_id:str
   const {data:reviews,isLoading:isLoadingReviewing}=useGetReviews(id!)
   const {data:comments,isLoading:isLoadingComment}=useGetComments(id!)
 
-    const details = [
-    { img: bedimg, number: "5", desc: t("room.Bedrooms") },
-    { img: livimg, number: "1", desc: t("room.LivingRoom") },
-    { img: bathimg, number: "3", desc: t("room.Bathrooms") },
-    { img: dingimg, number: "1", desc: t("room.DiningRoom") },
-    { img: wifiimg, number: "10", desc: t("room.Wifi") },
-    { img: unitsimg, number: "7", desc: t("room.UnitsReady") },
-    { img: refimg, number: "2", desc: t("room.Refrigerators") },
-    { img: tvimg, number: "4", desc: t("room.Televisions") },
-  ];
+  const details = [
+  { img: bedimg, number: "5", desc: t("user.Bedrooms") },
+  { img: livimg, number: "1", desc: t("user.LivingRoom") },
+  { img: bathimg, number: "3", desc: t("user.Bathrooms") },
+  { img: dingimg, number: "1", desc: t("user.DiningRoom") },
+  { img: wifiimg, number: "10", desc: t("user.Wifi") },
+  { img: unitsimg, number: "7", desc: t("user.UnitsReady") },
+  { img: refimg, number: "2", desc: t("user.Refrigerators") },
+  { img: tvimg, number: "4", desc: t("user.Televisions") },
+];
+
   const realPrice = room?.price
     ? room?.price - ((room?.discount ?? 0) / 100) * room?.price
     : 0;
@@ -243,10 +247,10 @@ const [selectedComment,setSelectedComment]=useState<null|{comment:string,_id:str
   const { mutate: addBooking, isPending } = useAddBooking();
   const naivgate = useNavigate();
   const handelBooking = () => {
-    if (!localStorage.getItem("token")) {
-      toast.error("Please Login First");
-      return;
-    }
+   if (!localStorage.getItem("token")) {
+        toast.error(t("user.pleaseBook"));
+        return;
+      }
     addBooking(
       {
         room: id ?? "",
@@ -269,6 +273,36 @@ if(selectedComment){
   },[selectedComment])
   // console.log(reviews?.data.roomRe
   // views)
+const ImageSlot = ({
+  src,
+  height,
+}: {
+  src?: string;
+  height: number;
+}) => {
+  if (!src) return null; // return nothing if no image
+
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        height,
+        borderRadius: "15px",
+        overflow: "hidden",
+        mb: 2,
+      }}
+    >
+      <Box
+        component="img"
+        src={src}
+        width="100%"
+        height="100%"
+        sx={{ objectFit: "cover" }}
+      />
+    </Box>
+  );
+};
+
   return (
     <>
       <Box sx={{ p: 5, mt: 3 }}>
@@ -306,57 +340,17 @@ if(selectedComment){
         </Breadcrumbs>
         {/* images */}
         <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Box
-              component={"img"}
-              width={"100%"}
-              sx={{ borderRadius: "15px", height: 480, objectFit: "cover" }}
-              src={room?.images[0]}
-            />
+          <Grid size={{ xs: 12, md: room?.images.length===1?12:4 }} >
+
+           <ImageSlot src={room?.images?.[0]} height={480} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Box
-              component={"img"}
-              width={"100%"}
-              sx={{
-                borderRadius: "15px",
-                height: room?.images[1] ? 240 : "",
-                objectFit: "cover",
-              }}
-              src={room?.images[1]}
-            />
-            <Box
-              component={"img"}
-              width={"100%"}
-              sx={{
-                borderRadius: "15px",
-                height: room?.images[2] ? 240 : "",
-                objectFit: "cover",
-              }}
-              src={room?.images[2]}
-            />
+           <ImageSlot src={room?.images?.[1]} height={240} />
+    <ImageSlot src={room?.images?.[2]} height={240} />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Box
-              component={"img"}
-              width={"100%"}
-              sx={{
-                borderRadius: "15px",
-                height: room?.images[3] ? 240 : "",
-                objectFit: "cover",
-              }}
-              src={room?.images[3]}
-            />
-            <Box
-              component={"img"}
-              width={"100%"}
-              sx={{
-                borderRadius: "15px",
-                height: room?.images[4] ? 240 : "",
-                objectFit: "cover",
-              }}
-              src={room?.images[4]}
-            />
+         <ImageSlot src={room?.images?.[3]} height={240} />
+    <ImageSlot src={room?.images?.[4]} height={240} />
           </Grid>
         </Grid>
 
@@ -591,7 +585,7 @@ if(selectedComment){
         <Grid
           container
           spacing={2}
-          sx={{ mt: 2, borderRadius: "15px", border: "1px solid #e5e5e5" }}
+          sx={{ mt: 4, borderRadius: "15px", border: "1px solid #e5e5e5" }}
         >
           <Grid size={{ xs: 12, md: 6 }} sx={{p:2}}>
           <Typography sx={{color:theme.palette.text.disabled,fontWeight:600,fontSize:"18px"}}>{t("user.rate")}</Typography>
@@ -625,7 +619,7 @@ if(selectedComment){
           />
 <Button variant="contained" sx={{mt:2}}
 
-disabled={isReview}
+disabled={isReview ||!localStorage.getItem("token")}
 
 onClick={handleSubmitRate(onSubmitRate)} 
 >
@@ -657,6 +651,7 @@ onClick={handleSubmitRate(onSubmitRate)}
           <Button variant="contained"
           
           onClick={handleSubmitComment(onSubmitComment)} 
+disabled={isCommenting ||!localStorage.getItem("token")}
 
           sx={{mt:2}}>{
             isCommenting?<>

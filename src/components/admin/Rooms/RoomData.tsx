@@ -37,7 +37,7 @@ import { useAddRoom, type IRoomCreate } from "../../../hooks/useAddRoom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetRoom } from "../../../hooks/useGetRoom";
 import { useUpdateRoom } from "../../../hooks/useUpdateRoom";
-
+import type { AxiosError } from "axios";
 
 export default function RoomData() {
   const {
@@ -46,16 +46,16 @@ export default function RoomData() {
     formState: { errors },
     setValue,
     register,
-    reset
-  } = useForm<  IRoomCreate>({
+    reset,
+  } = useForm<IRoomCreate>({
     defaultValues: {
       facilities: [],
       imgs: [],
     },
   });
   const theme = useTheme();
-const {id}=useParams()
-const {data:roomDaata}=useGetRoom(id??null)
+  const { id } = useParams();
+  const { data: roomDaata } = useGetRoom(id ?? null);
   const { t, i18n } = useTranslation();
 
   register("imgs", {
@@ -63,67 +63,64 @@ const {data:roomDaata}=useGetRoom(id??null)
   });
 
   const { data: facilitiesData, isLoading: isLoadingFacilities } =
-    useGetFacilities(1, 9999,{
-    // enabled:!Boolean(roomId)
+    useGetFacilities(1, 9999, {
+      // enabled:!Boolean(roomId)
     });
   const facilities = facilitiesData?.data.facilities?.map((faility) => ({
     name: faility.name,
     id: faility._id,
   }));
 
-  const [imgs, setImgs] = useState<null | File[]>(null);
+  const [imgs, setImgs] = useState<File[]>([]);
 
   //uploading imgs
   const handelUploadFile = (acceptedFiles: File[]) => {
     console.log(acceptedFiles);
     setValue("imgs", acceptedFiles, { shouldValidate: true });
+    acceptedFiles.forEach((file) => {
+      console.log("File name:", file.name);
+      console.log("File type:", file.type);
+      console.log("File size:", file.size);
+      console.log("Is File instance?", file instanceof File); // ← MUST be true
+    });
     setImgs(acceptedFiles);
   };
 
+  useEffect(() => {
+    if (id && roomDaata) {
+      reset({
+        capacity: String(roomDaata?.data.room.capacity),
+        price: String(roomDaata?.data.room.price),
+        discount: String(roomDaata?.data.room.discount),
+        roomNumber: roomDaata?.data.room.roomNumber,
+        facilities: roomDaata.data.room.facilities.map((f) => f._id),
+        // imgs:roomDaata?.data.room.images,
+      });
 
-
-
-  useEffect(()=>{
-if(id&&roomDaata){
-  reset({
-capacity:String(roomDaata?.data.room.capacity),
-price:String(roomDaata?.data.room.price),
-discount:String(roomDaata?.data.room.discount),
-roomNumber:roomDaata?.data.room.roomNumber,
-facilities:roomDaata.data.room.facilities.map((f)=>f._id),
-// imgs:roomDaata?.data.room.images,
-  })
-
-if(roomDaata?.data.room.images.length>0){
- const loadImages = async () => {
-    const imgFiles = await Promise.all(
-      roomDaata.data.room.images.map(async (img, i) => {
-        const response = await fetch(img);
-        const blob = await response.blob();
-        return new File([blob], `img-${i}`, { type: blob.type });
-      })
-    );
-    setValue('imgs',imgFiles)
-    setImgs(imgFiles)
-  }
-  loadImages();
-   
-}
-
-
-}
-
-
-
-
-  },[id,roomDaata])
-
+      if (roomDaata?.data.room.images.length > 0) {
+        const loadImages = async () => {
+          const imgFiles = await Promise.all(
+            roomDaata.data.room.images.map(async (img, i) => {
+              const response = await fetch(img);
+              const blob = await response.blob();
+              return new File([blob], `img-${i}`, { type: blob.type });
+            })
+          );
+          setValue("imgs", imgFiles);
+          setImgs(imgFiles);
+        };
+        loadImages();
+      }
+    }
+  }, [id, roomDaata, reset, setValue]);
 
   const { mutate: addRoom, isPending: isAdding } = useAddRoom();
-  const { mutate: updateRoom, isPending:isUpdating } = useUpdateRoom(id??null);
+  const { mutate: updateRoom, isPending: isUpdating } = useUpdateRoom(
+    id ?? null
+  );
 
-  const navigate=useNavigate()
-const queryClient=useQueryClient()
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const onSubmit = (data: IRoomCreate) => {
     console.log(data);
@@ -135,50 +132,50 @@ const queryClient=useQueryClient()
 
       if (key === "facilities") {
         //facilities=['','']
-        data.facilities?.forEach((id) => {
-          formData.append("facilities[]", id);
+        data.facilities?.forEach((id: string) => {
+          formData.append("facilities", id);
         });
       } else if (key === "imgs") {
         imgs?.forEach((img) => {
-          formData.append(key, img);
+          formData.append("imgs", img);
         });
       } else {
         formData.append(key, data[k] as string);
       }
     }
-    
-    if(!id){
-      //add vase 
-       addRoom(formData, {
+
+    if (!id) {
+      //add vase
+      addRoom(formData, {
         onSuccess: (res) => {
-          console.log(res)
+          console.log(res);
           toast.success(res.message);
           queryClient.invalidateQueries({
             queryKey: ["rooms"],
           });
-          navigate('/dashboard/rooms')
+          navigate("/dashboard/rooms");
         },
         onError: (err) => {
           toast.error(err?.response?.data?.message ?? "Something went wrong");
         },
-      }
-       )}else{
- updateRoom(formData, {
+      });
+    } else {
+      updateRoom(formData, {
         onSuccess: (res) => {
-          console.log(res)
+          console.log(res);
           toast.success(res.message);
           queryClient.invalidateQueries({
-            queryKey: ['rooms'],
-            
+            queryKey: ["rooms"],
           });
-          queryClient.invalidateQueries({ queryKey: ['room', id] }); // adjust if your key is different
-          navigate('/dashboard/rooms')
+          queryClient.invalidateQueries({ queryKey: ["room", id] }); // adjust if your key is different
+          navigate("/dashboard/rooms");
         },
-        onError: (err) => {
+        onError: (error) => {
+          const err = error as AxiosError<{ message: string }>;
           toast.error(err?.response?.data?.message ?? "Something went wrong");
         },
-      })
-       }
+      });
+    }
     for (const [key, value] of formData.entries()) {
       console.log(key, value);
     }
@@ -209,7 +206,7 @@ const queryClient=useQueryClient()
                 errorMsg={errors.roomNumber?.message}
                 {...field}
                 label={t("rooms.roomNumber")}
-                value={field.value??''}
+                value={field.value ?? ""}
                 // type="number"
                 placeholder="0"
               />
@@ -227,8 +224,7 @@ const queryClient=useQueryClient()
                 errorMsg={errors.price?.message}
                 {...field}
                 label={t("rooms.price")}
-                                value={field.value??''}
-
+                value={field.value ?? ""}
                 // type="number"
                 placeholder="0.00"
               />
@@ -246,8 +242,7 @@ const queryClient=useQueryClient()
                 errorMsg={errors.capacity?.message}
                 {...field}
                 label={t("rooms.capacity")}
-                                value={field.value??''}
-
+                value={field.value ?? ""}
                 type="number"
                 placeholder="0"
               />
@@ -265,8 +260,7 @@ const queryClient=useQueryClient()
                 {...field}
                 errorMsg={errors.discount?.message}
                 label={t("rooms.discount")}
-                                value={field.value??''}
-
+                value={field.value ?? ""}
                 type="number"
                 placeholder="0%"
               />
@@ -280,24 +274,76 @@ const queryClient=useQueryClient()
           ) : (
             <Controller
               name="facilities"
-              // defaultValue={[]}
               rules={getFacilitiesValidation(i18n.language as "en" | "ar")}
               control={control}
               render={({ field }) => (
-                <FormControl sx={{ width: "100%" }} error={!!errors.facilities}>
-                  <InputLabel id="demo-multiple-chip-label">
+                <FormControl fullWidth error={!!errors.facilities}>
+                  <InputLabel
+                    id="demo-multiple-chip-label"
+                    className={
+                      i18n.language === "ar"
+                        ? "css-ar-facilities-label-MuiFormLabel-root-MuiInputLabel-root"
+                        : ""
+                    }
+                  >
                     {t("rooms.facilities")}
                   </InputLabel>
+
                   <Select
+                    labelId="demo-multiple-chip-label"
+                    id="demo-multiple-chip"
+                    multiple
                     fullWidth
+                    dir={i18n.language === "ar" ? "rtl" : "ltr"}
+                    {...field}
+                    input={
+                      <OutlinedInput
+                        label={t("rooms.facilities")}
+                        classes={{
+                          notchedOutline:
+                            i18n.language === "ar"
+                              ? "css-ar-facilities-notchedOutline-MuiOutlinedInput-notchedOutline"
+                              : undefined,
+                          adornedEnd:
+                            i18n.language === "ar"
+                              ? "css-ar-facilities-adornedEnd-MuiOutlinedInput-root"
+                              : undefined,
+                        }}
+                      />
+                    }
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {(selected as string[])?.map((value) => {
+                          const facility = facilities?.find(
+                            (f) => f.id === value
+                          );
+                          return (
+                            <Chip
+                              key={value}
+                              label={facility?.name}
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                              onDelete={() => {
+                                field.onChange(
+                                  field.value.filter(
+                                    (id: string) => id !== value
+                                  )
+                                );
+                              }}
+                              deleteIcon={<CancelIcon />}
+                            />
+                          );
+                        })}
+                      </Box>
+                    )}
                     MenuProps={{
                       PaperProps: {
                         sx: {
                           maxHeight: 250,
-
-                          "&::-webkit-scrollbar": {
-                            width: 8,
-                          },
+                          direction: i18n.language === "ar" ? "rtl" : "ltr",
+                          "&::-webkit-scrollbar": { width: 8 },
                           "&::-webkit-scrollbar-track": {
                             backgroundColor: "#f1f1f1",
                           },
@@ -312,56 +358,22 @@ const queryClient=useQueryClient()
                         },
                       },
                     }}
-                    labelId="demo-multiple-chip-label"
-                    id="demo-multiple-chip"
-                    multiple
-                    {...field}
-                    input={
-                      <OutlinedInput
-                        id="select-multiple-chip"
-                        label={t("rooms.facilities")}
-                      />
-                    }
-                    renderValue={(selected) => (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: 0.5,
-                          width: "100%",
-                        }}
-                      >
-                        {selected?.map((value) => {
-                          const facility = facilities?.find(
-                            (facility) => facility.id === value
-                          );
-                          // console.log(selected);
-                          return (
-                            <Chip
-                              key={value}
-                              label={facility?.name}
-                              onMouseDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                              }}
-                              onDelete={() => {
-                                field.onChange(
-                                  field.value.filter((id) => id !== value)
-                                );
-                              }}
-                              deleteIcon={<CancelIcon />}
-                            />
-                          );
-                        })}
-                      </Box>
-                    )}
                   >
                     {facilities?.map(({ id, name }) => (
-                      <MenuItem key={id} value={id}>
+                      <MenuItem
+                        key={id}
+                        value={id}
+                        sx={{
+                          justifyContent:
+                            i18n.language === "ar" ? "flex-end" : "flex-start",
+                          textAlign: i18n.language === "ar" ? "right" : "left",
+                        }}
+                      >
                         {name}
                       </MenuItem>
                     ))}
                   </Select>
+
                   {errors.facilities && (
                     <FormHelperText>
                       {errors.facilities.message as string}
@@ -377,7 +389,7 @@ const queryClient=useQueryClient()
           <Dropzone
             maxFiles={5}
             multiple
-            onDrop={(file) => handelUploadFile(file)}
+            onDrop={(acceptedFiles) => handelUploadFile(acceptedFiles)}
           >
             {({ getRootProps, getInputProps }) => (
               <Box
@@ -396,7 +408,7 @@ const queryClient=useQueryClient()
                 }}
               >
                 <input {...getInputProps()} />
-                <p>{t("rooms.roomDarg")}</p>
+                <p style={{ color: "#121212" }}>{t("rooms.roomDarg")}</p>
               </Box>
             )}
           </Dropzone>
@@ -479,21 +491,22 @@ const queryClient=useQueryClient()
           <Button variant="outlined" component={Link} to={"/dashboard/rooms"}>
             {t("rooms.cancel")}
           </Button>
-          <Button variant="contained" type="submit"           disabled={isAdding || isUpdating}
->
-               {isUpdating || isAdding ? (
-                        <>
-                          <CircularProgress size={20} sx={{ color: "white", mr: 1 }} />
-            
-                          {isUpdating
-                            ? t("facilities.editing")
-                            : t("facilities.saving")}
-                        </>
-                      ) : id ? (
-                        t("facilities.edit")
-                      ) : (
-                        t("facilities.save")
-                      )}
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={isAdding || isUpdating}
+          >
+            {isUpdating || isAdding ? (
+              <>
+                <CircularProgress size={20} sx={{ color: "white", mr: 1 }} />
+
+                {isUpdating ? t("facilities.editing") : t("facilities.saving")}
+              </>
+            ) : id ? (
+              t("facilities.edit")
+            ) : (
+              t("facilities.save")
+            )}
           </Button>
         </Stack>
       </Grid>

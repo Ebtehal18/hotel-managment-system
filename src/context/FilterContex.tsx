@@ -2,14 +2,12 @@ import type { Dayjs } from "dayjs";
 import { createContext, useContext, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 
 interface IFilter{
-//    interface FilterContextType {
   capacity: number;
   setCapacity: Dispatch<SetStateAction<number>>;
   startDate: Dayjs | null;
-  setStartDate: Dispatch<SetStateAction<string | null>>;
+  setStartDate: Dispatch<SetStateAction<Dayjs  | null>>;
   endDate: Dayjs | null;
-  setEndDate: Dispatch<SetStateAction<string| null>>;
-// }
+  setEndDate: Dispatch<SetStateAction<Dayjs | null>>;
 }
 const FilterContext=createContext<null|IFilter>(null)
 export const FilterContextProvider=({children}:{children:ReactNode})=>{

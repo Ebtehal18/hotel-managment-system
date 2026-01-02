@@ -31,3 +31,51 @@
 .custom-range-picker .rs-input-group[data-inside=true] .rs-input{
   font-size: 16px;
 }
+
+
+/* Global RTL fixes for MUI Outlined Inputs when language is Arabic */
+/* Global RTL fixes for MUI Outlined inputs (TextField, Select, etc.) */
+/* Fix MUI Outlined floating label in Arabic (RTL) - no extra library needed */
+
+.css-ar-facilities-label-MuiFormLabel-root-MuiInputLabel-root {
+  left: auto !important;
+  right: 15px !important; /* Reduced from 14px - closer to edge */
+  /* transform: translate(0, 20px) scale(1) !important; Match LTR initial state */
+  /* transform-origin: top right !important; */
+  text-align: right !important;
+  direction: rtl !important;
+  margin-right: 4px !important; /* Fine-tune distance from edge */
+}
+
+.css-ar-facilities-label-MuiFormLabel-root-MuiInputLabel-root.Mui-focused {
+  color: var(--mui-palette-primary-main); /* Optional: keep focus color */
+}
+
+/* Move the notch (legend gap) to the right side */
+.css-ar-facilities-notchedOutline-MuiOutlinedInput-notchedOutline legend {
+  text-align: right !important;
+  direction: rtl !important; /* Helps with legend spacing */
+}
+
+/* Move the dropdown indicator (triangle) to the left */
+.css-ar-facilities-adornedEnd-MuiOutlinedInput-root .MuiSelect-icon {
+  right: auto !important;
+  left: 7px !important; /* Position of the arrow */
+}
+/* ////////////////////////////////////////// *//* ARABIC: Move the Select dropdown icon to the LEFT */
+.ar-select-icon-left .MuiSelect-icon {
+  right: auto !important;
+  left: 8px !important;        /* Exactly as you requested */
+  pointer-events: none;
+}
+
+/* Give space on the left for the icon in RTL (so text/chips don't overlap it) */
+.ar-select-icon-left .MuiSelect-select {
+  padding-left: 40px !important;   /* Room for icon + spacing */
+  padding-right: 16px !important;  /* Reduce right padding since icon is not there */
+}
+
+/* Optional: Also handle open state (arrow rotates) */
+.ar-select-icon-left .MuiSelect-iconOpen {
+  transform: rotate(180deg); /* Keeps the arrow pointing correctly */
+}

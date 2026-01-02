@@ -216,7 +216,21 @@
 "register":"Register",
 "loading":"Loading...",
 "otpRequired": "The OTP is required",
-    "invalidOtp": "Please enter a valid OTP (4 to 8 digits)"
+    "invalidOtp": "Please enter a valid OTP (4 to 8 digits)",
+   "language" :"Language",
+   "theme":"Theme",
+  "try" :"Try adjusting your dates, capacity, or remove some filters.",
+ "noRoomsAvailable" :"No Rooms Available",
+ "please":"Please log in first to add this room to your favorites.",
+ "pleaseBook":"Please log in first to Book this room.",
+  "Bedrooms": "Bedrooms",
+    "LivingRoom": "Living Room",
+    "Bathrooms": "Bathrooms",
+    "DiningRoom": "Dining Room",
+    "Wifi": "Wi-Fi",
+    "UnitsReady": "Ready Units",
+    "Refrigerators": "Refrigerators",
+    "Televisions": "Televisions"
 
 }
 }
