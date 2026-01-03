@@ -15,7 +15,7 @@ export default function SharedHeader({title,onClick,to,btnText}:{title:string,on
         </Typography> 
         <Typography sx={{fontSize:"0.875rem",color:theme.palette.secondary.main}}> {t('dashboard.Youcancheck')}</Typography>
 </Stack>
-{to&&<Button component={Link} to={to} variant='contained'>
+{to&&<Button component={Link} to={to} variant='contained' sx={{"&:hover":{color:"#fff"}}}>
         { btnText} 
         </Button>}
 {onClick&&<Button onClick={onClick} variant='contained'>

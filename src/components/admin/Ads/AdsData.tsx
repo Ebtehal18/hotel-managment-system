@@ -40,6 +40,7 @@ export default function AdsData({
     id: room._id,
     name: room.roomNumber,
   }));
+  console.log(rooms)
   const status = [
     { id: "false", name: "inActive" },
     { id: "true", name: "Active" },

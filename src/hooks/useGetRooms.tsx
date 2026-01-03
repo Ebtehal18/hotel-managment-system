@@ -45,7 +45,7 @@ export const getDataRooms = async(page:number,size:number=5): Promise<IResponse>
 
 export const useGetRooms = (page:number,size?:number,options?: Partial<UseQueryOptions<IResponse>>): UseQueryResult<IResponse> => {
   return useQuery<IResponse>({
-    queryKey: ['rooms',page],
+    queryKey: ['rooms',page,size],
     queryFn: () => getDataRooms(page,size),
     staleTime: 5 * 60 * 1000,
 //Old data stays while new page loads → no white flash

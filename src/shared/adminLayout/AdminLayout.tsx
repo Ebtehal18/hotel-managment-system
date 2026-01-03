@@ -194,7 +194,8 @@ const navigate=useNavigate()
 
   </Stack>
           
-      <MuiDrawer open={open} onClose={()=>toggleDrawer(false)}   PaperProps={{
+      <MuiDrawer open={open}              anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+ onClose={()=>toggleDrawer(false)}   PaperProps={{
     sx: {
       background: theme.palette.primary.main,
       color: "#fff",
@@ -285,6 +286,7 @@ const navigate=useNavigate()
         </Stack>
         </Toolbar>
       </AppBar>
+      
       <Drawer variant="permanent"   anchor={theme.direction === 'rtl' ? 'right' : 'left'}
  open={open} PaperProps={{
     sx: {

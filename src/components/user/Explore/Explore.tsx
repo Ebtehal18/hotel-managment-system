@@ -1,5 +1,4 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { UseFilter } from "../../../context/FilterContex";
 import { useGetAvailableRooms } from "../../../hooks/useGetAvaliableRooms";
 import { useEffect, useState } from "react";
 import { getDataRooms } from "../../../hooks/useGetAvaliableRooms";
@@ -16,7 +15,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { Link as RouterDom, useNavigate } from "react-router-dom";
+import { Link as RouterDom, useNavigate, useSearchParams } from "react-router-dom";
 import roomImg from "../../../assets/room.webp";
 import empty from "../../../assets/empty-1-Cp9p7e3t.svg";
 import { UseFavorite } from "../../../context/FavaContext";
@@ -28,13 +27,20 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import toast from "react-hot-toast";
 
 export default function Explore() {
-  const { endDate, capacity, startDate } = UseFilter();
+  // const { endDate, capacity, startDate} = UseFilter();
   const [page, setPage] = useState(1);
   const { t } = useTranslation();
-  const capacityParam = capacity === 0 ? undefined : capacity;
-  console.log(capacityParam);
-  const startDateParam = startDate ? startDate.format("YYYY-MM-DD") : undefined;
-  const endDateParam = endDate ? endDate.format("YYYY-MM-DD") : undefined;
+  const [searchParams] = useSearchParams();
+
+const startDateParam = searchParams.get("start") || undefined;
+const endDateParam = searchParams.get("end") || undefined;
+const capacityParam = searchParams.get("capacity")
+  ? Number(searchParams.get("capacity"))
+  : undefined;
+  // const capacityParam = capacity === 0 ? undefined : capacity;
+  // console.log(capacityParam);
+  // const startDateParam = startDate ? startDate.format("YYYY-MM-DD") : undefined;
+  // const endDateParam = endDate ? endDate.format("YYYY-MM-DD") : undefined;
 
   const { data, isLoading } = useGetAvailableRooms(
     page,
@@ -72,12 +78,14 @@ export default function Explore() {
         queryClient.prefetchQuery({
           queryKey: ["avaliableRooms", page + 1],
           queryFn: () =>
-            getDataRooms(page + 1, 8, startDateParam, endDateParam, capacity),
+            getDataRooms(page + 1, 8, startDateParam, endDateParam, capacityParam),
         });
       }
     }
-  }, [page, queryClient, data, capacity, startDateParam, endDateParam]);
+  }, [page, queryClient, data, capacityParam, startDateParam, endDateParam]);
   const navigate = useNavigate();
+
+ 
   const handelDetail = (id: string) => {
     navigate(`/room-detail/${id}`);
   };

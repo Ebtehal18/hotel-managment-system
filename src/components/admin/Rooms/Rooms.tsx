@@ -40,7 +40,7 @@ import { useNavigate } from "react-router-dom";
 export default function Rooms() {
   const [page, setPage] = useState(1);
   const { t } = useTranslation();
-  const { data, isLoading } = useGetRooms(page);
+  const { data, isLoading } = useGetRooms(page,5);
   const [open, setOpen] = useState(false);
   const [room, setSelectedRoom] = useState<null | IRoom>(null);
   const theme = useTheme();
@@ -368,9 +368,9 @@ export default function Rooms() {
               <Typography
                 sx={{ color: theme.palette.error.main, fontWeight: "bold" }}
               >
-                {t("ads.deleteThisAd")}
+                {t("user.deleteThisAd")}
               </Typography>
-              <Typography sx={{ color: theme.palette.secondary.main }}>
+              <Typography sx={{ color: theme.palette.text.disabled }}>
                 {t("facilities.areYouSure")}
               </Typography>
             </Stack>

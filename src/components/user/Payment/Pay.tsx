@@ -197,6 +197,84 @@ export default function Pay() {
                 <CardElement />
               </Box>
             )}
+            {activeStep === 2 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: 300,
+                  textAlign: "center",
+                  py: 4,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: "50%",
+                    backgroundColor: "success.light",
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mb: 3,
+                  }}
+                >
+                  <svg
+                    width="40"
+                    height="40"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ color: "success.main" }}
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                </Box>
+
+                <Typography
+                  variant="h5"
+                  fontWeight={600}
+                  color="success.main"
+                  gutterBottom
+                >
+                  {t("user.paymentSuccessful")}
+                </Typography>
+
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mb: 3, maxWidth: 400 }}
+                >
+                  {t("user.paymentConfirmationMessage") ||
+                    "Your payment has been processed successfully. You will receive a confirmation email shortly."}
+                </Typography>
+
+                <Box sx={{ mt: 4, display: "flex", gap: 2 }}>
+                  <Button
+                    variant="contained"
+                    component={RouterDom}
+                    to="booking"
+                    sx={{
+                      "&:hover": {
+                        color: "#fff",
+                      },
+                    }}
+                  >
+                    {t("user.viewBookings") || "View My Bookings"}
+                  </Button>
+
+                  <Button variant="outlined" component={RouterDom} to="/">
+                    {t("user.backToHome") || "Back to Home"}
+                  </Button>
+                </Box>
+              </Box>
+            )}
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Button
                 color="inherit"

@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { useNavigate } from "react-router-dom";
-import { UseFilter } from "../../../context/FilterContex";
+// import { UseFilter } from "../../../context/FilterContex";
 import MostPopularAds from "./MostPopularAds";
 import Houses from "./Houses";
 import Hotels from "./Hotels";
@@ -23,29 +23,28 @@ import HappyFamliy from "./HappyFamliy";
 import { DateRangePicker, InputGroup, type PickerHandle } from "rsuite";
 
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
+// import dayjs from "dayjs";
 export default function UserHome() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const {
-    capacity,
-    setCapacity,
-    setStartDate,
-    setEndDate,
-    startDate,
-    endDate,
-  } = UseFilter();
+     const [capacity,setCapacity]=useState<number>(0)
+    const [startDate, setStartDate] = useState<Dayjs | null>(null);
+   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const navigate = useNavigate();
   const handelExplore = () => {
-    // const start = startDate?.format('YYYY-MM-DD')??null;
-    //     const end = endDate?.format('YYYY-MM-DD')??null;
+   if (!startDate || !endDate) return;
 
-    // setStartDate(start)
-    // setEndDate(end)
-    setCapacity(capacity);
-    // console.log(typeof start,end)
-    navigate("/explore");
+  const params = new URLSearchParams();
+  params.set("start", startDate.format("YYYY-MM-DD"));
+  params.set("end", endDate.format("YYYY-MM-DD"));
+  if (capacity > 0) {
+    params.set("capacity", capacity.toString());
+  }
+
+  navigate(`/explore?${params.toString()}`);
   };
   const pickerRef = useRef<PickerHandle>(null);
 

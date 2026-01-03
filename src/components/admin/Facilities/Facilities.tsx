@@ -37,7 +37,7 @@ import BusinessIcon from "@mui/icons-material/Business";
 
 export default function Facilities() {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useGetFacilities(page);
+  const { data, isLoading } = useGetFacilities(page,5);
   const { t } = useTranslation();
   const theme = useTheme();
   const [isEdit, setIsEdit] = useState(false);
@@ -214,7 +214,7 @@ export default function Facilities() {
                 {t("facilities.deleteThisFacility")}: {""}
                 {selectedFacility?.name}
               </Typography>
-              <Typography sx={{ color: theme.palette.secondary.main }}>
+              <Typography sx={{ color: theme.palette.text.disabled }}>
                 {t("facilities.areYouSure")}
               </Typography>
             </Stack>

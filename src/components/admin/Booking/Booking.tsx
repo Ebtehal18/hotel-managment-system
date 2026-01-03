@@ -212,7 +212,7 @@ export default function Booking() {
               >
                 {t("booking.deleteThisBooking")}
               </Typography>
-              <Typography sx={{ color: theme.palette.secondary.main }}>
+              <Typography sx={{ color: theme.palette.text.disabled }}>
                 {t("facilities.areYouSure")}
               </Typography>
             </Stack>

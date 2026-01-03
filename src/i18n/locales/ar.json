@@ -236,7 +236,11 @@
        "roleUser":"User",
           "phone": "Phone Number",
 "joined": "Joined",
-"notVerified": "Not Verified"
+"notVerified": "Not Verified",
+"paymentSuccessful": "تم الدفع بنجاح!",
+    "paymentConfirmationMessage": "شكراً لك! تمت معالجة دفعتك بنجاح. تم إرسال بريد إلكتروني لتأكيد الحجز إليك.",
+    "viewBookings": "عرض حجوزاتي",
+    "backToHome": "العودة إلى الصفحة الرئيسية"
 }
 
 }

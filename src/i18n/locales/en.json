@@ -240,7 +240,12 @@
           "roleUser":"User",
           "phone": "Phone Number",
 "joined": "Joined",
-"notVerified": "Not Verified"
+"notVerified": "Not Verified",
+"paymentSuccessful": "Payment Successful!",
+    "paymentConfirmationMessage": "Thank you! Your payment has been processed successfully. A confirmation email has been sent to you.",
+    "viewBookings": "View My Bookings",
+    "backToHome": "Back to Home",
+    "deleteThisAd":"Delete This Room"
 
 
 

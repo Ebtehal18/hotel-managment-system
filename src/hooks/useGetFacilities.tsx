@@ -35,7 +35,7 @@ export const getDataFacilities = async (page: number,size:number=5): Promise<IRe
 
 export const useGetFacilities = (page: number,size=5,options?: Partial<UseQueryOptions<IResponse>>): UseQueryResult<IResponse> => {
   return useQuery<IResponse>({
-    queryKey: ["facilities", page],
+    queryKey: ["facilities", page,size],
     queryFn: () => getDataFacilities(page,size),
     staleTime: 5 * 60 * 1000,
     ...options,

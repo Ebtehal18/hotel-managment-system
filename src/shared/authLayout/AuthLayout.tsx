@@ -148,6 +148,7 @@ export default function AuthLayout() {
         objectFit: "cover",
         objectPosition: "bottom",
         borderRadius: "0.5rem",
+        // overflow:
         p: 2,
       }}
     />

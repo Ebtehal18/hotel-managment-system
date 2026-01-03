@@ -239,7 +239,7 @@ export default function Register() {
                   }}
                 >
                   <input {...getInputProps()} />
-                  {!imgs && <p>{t("user.userImage")}</p>}
+                  {!imgs && <p style={{ color: "#121212" }}>{t("user.userImage")}</p>}
                   {imgs && (
                     <Box sx={{ position: "relative", width: 80, height: 80 }}>
                       <Box

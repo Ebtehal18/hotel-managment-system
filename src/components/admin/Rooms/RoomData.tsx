@@ -419,15 +419,17 @@ export default function RoomData() {
        imgs preview */}
           <Grid
             container
-            spacing={2}
+            spacing={1}
             sx={{ mt: 2 }}
             justifyContent="center"
+
             alignItems={"center"}
           >
             {imgs?.map((img, index) => (
               <Grid
                 key={img.name}
                 size={{ xs: 6, sm: 2.4 }}
+              
                 justifyContent={"center"}
               >
                 <Box
