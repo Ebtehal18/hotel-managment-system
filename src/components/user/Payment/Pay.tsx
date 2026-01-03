@@ -259,7 +259,8 @@ export default function Pay() {
                   <Button
                     variant="contained"
                     component={RouterDom}
-                    to="booking"
+                    
+                    to="/booking"
                     sx={{
                       "&:hover": {
                         color: "#fff",

@@ -240,7 +240,9 @@
 "paymentSuccessful": "تم الدفع بنجاح!",
     "paymentConfirmationMessage": "شكراً لك! تمت معالجة دفعتك بنجاح. تم إرسال بريد إلكتروني لتأكيد الحجز إليك.",
     "viewBookings": "عرض حجوزاتي",
-    "backToHome": "العودة إلى الصفحة الرئيسية"
+    "backToHome": "العودة إلى الصفحة الرئيسية",
+    "deleteThisAd": "حذف هذه الغرفة"
+
 }
 
 }
